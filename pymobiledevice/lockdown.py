@@ -362,6 +362,8 @@ class LockdownClient(object):
         return res
 
     def startService(self, name):
+        print("[Andy] startService: %s" % name)
+        
         if not self.paired:
             self.logger.info("NotPaired")
             raise NotPairedError
@@ -375,6 +377,29 @@ class LockdownClient(object):
         if ssl_enabled:
             plist_service.ssl_start(self.sslfile, self.sslfile)
         return plist_service
+
+    def myStartService(self, payload):
+        print("[Andy] startService: %s" % payload)
+
+        if not self.paired:
+            self.logger.info("NotPaired")
+            raise NotPairedError
+
+        self.c.sendPlist(payload)
+        startService = self.c.recvPlist()
+        ssl_enabled = startService.get("EnableServiceSSL", False)
+        if not startService or startService.get("Error"):
+            raise StartServiceError(startService.get("Error"))
+        plist_service = PlistService(startService.get("Port"), self.udid)
+        if ssl_enabled:
+            plist_service.ssl_start(self.sslfile, self.sslfile)
+        return plist_service
+
+
+    def mySendRequest(self, payload):
+        self.c.sendPlist(payload)
+        response = self.c.recvPlist()
+        return response
 
     def startServiceWithEscrowBag(self, name, escrowBag=None):
         if not self.paired:

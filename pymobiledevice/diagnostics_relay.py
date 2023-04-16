@@ -224,8 +224,12 @@ def main():
     (options, args) = parser.parse_args()
 
     diag = DIAGClient()
+
     if not options.cmd:
-        res = diag.diagnostics()
+        if options.ioclass or options.ioname:
+            res = diag.ioregistry_entry(options.ioname, options.ioclass)
+        else:
+            res = diag.diagnostics()
 
     elif options.cmd == "IORegistry":
         res = diag.ioregistry_plane()

@@ -116,6 +116,10 @@ class BinaryProtocol(object):
 
 	def sendpacket(self, req, tag, payload={}):
 		payload = self._pack(req, payload)
+
+		print(f"[Andy][usbmux] send packet")
+
+
 		if self.connected:
 			raise MuxError("Mux is connected, cannot issue control packets")
 		length = 16 + len(payload)
@@ -272,8 +276,15 @@ class UsbmuxdClient(MuxConnection):
 		tag = self.pkttag
 		self.pkttag += 1
 		payload = {"PairRecordID": udid}
+
+		print(f"[Andy][usbmux] get pair record send: {payload}")
+
 		self.proto.sendpacket("ReadPairRecord", tag, payload)
+
 		_, recvtag, data = self.proto.getpacket()
+
+		# print(f"[Andy][usbmux] get pair record recv: {data}")
+
 		if recvtag != tag:
 			raise MuxError("Reply tag mismatch: expected %d, got %d" % (tag, recvtag))
 		if PY3:

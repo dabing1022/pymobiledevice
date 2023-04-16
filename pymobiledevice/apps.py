@@ -95,8 +95,14 @@ def mobile_install(lockdown,ipaPath):
 
 def list_apps(lockdown):
     mci = lockdown.startService("com.apple.mobile.installation_proxy")
-    mci.sendPlist({"Command":"Lookup"})
+
+    print("[Andy]Getting apps list...")
+
+    mci.sendPlist({"Command": "Lookup"})
     res = mci.recvPlist()
+
+    print(f"[Andy]Got apps list... {res}")
+
     for app in res["LookupResult"].values():
         if app.get("ApplicationType") != "System":
             print(app["CFBundleIdentifier"], "=>", app.get("Container"))
