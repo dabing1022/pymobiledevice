@@ -496,6 +496,12 @@ class MobileBackup2(MobileBackup):
         self.mobilebackup2_send_request("List", self.udid, source_udid, options)
         self.work_loop()
 
+    def erase(self, options={}):
+        print("Erasing device %s" % self.udid)
+        source_udid = self.udid
+        self.mobilebackup2_send_request("EraseDevice", self.udid, source_udid, options)
+        self.work_loop()
+
     def changepw(self,oldpw,newpw):
         options = { "OldPassword" : oldpw,
                     "NewPassword" : newpw }
@@ -534,6 +540,8 @@ def main():
                   help="Show backup info")
     parser.add_option("-p", "--path", dest="path", action="store", default=False,
                   help="path to backup/restore to")
+    parser.add_option("-e", "--erase", dest="erase", action="store_true", default=False,
+                      help="Erase device, becareful!")
     (options, args) = parser.parse_args()
 
 
@@ -548,6 +556,9 @@ def main():
         mb.info()
     elif options.list:
         mb.list()
+    elif options.erase:
+        print("options erase...")
+        mb.erase()
     else:
         parser.error("Incorrect number of arguments")
 

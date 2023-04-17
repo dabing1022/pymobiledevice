@@ -124,7 +124,7 @@ class PlistService(object):
         if payload.startswith(bplist_header):
             if PY3:
                 result = plistlib.readPlistFromString(payload)
-                # print(f"[Andy] plist result1: {result}")
+                print(f"[Andy] plist result1: {result}")
                 return result
             else:
                 from pymobiledevice.util.bplist import BPlistReader
@@ -133,7 +133,7 @@ class PlistService(object):
             #HAX lockdown HardwarePlatform with null bytes
             payload = sub('[^\w<>\/ \-_0-9\"\'\\=\.\?\!\+]+','', payload.decode('utf-8')).encode('utf-8')
             result = plistlib.readPlistFromString(payload)
-            # print(f"[Andy] plist result2: {result}")
+            print(f"[Andy] plist result2: {result}")
             return result
         else:
             raise Exception("recvPlist invalid data : %s" % payload[:100].encode("hex"))

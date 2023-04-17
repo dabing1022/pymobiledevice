@@ -33,13 +33,14 @@ def on_lockdown_client_connected(sid, data):
 
     start_lockdown_service(installation_proxy_service)
 
+    # start_lockdown_service(screenshotr_service)
+
 
 
 @sio.on('start_lockdown_service_success')
 def on_start_lockdown_service_success(sid, data):
     print(f"[server] start_lockdown_service_success: {data}")
 
-    start_lockdown_service(screenshotr_service)
 
     service_name = data['name']
     if service_name == installation_proxy_service:
