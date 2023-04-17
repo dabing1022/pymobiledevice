@@ -1,4 +1,6 @@
 import logging
+import os
+from time import strftime, gmtime
 
 from pymobiledevice.lockdown import LockdownClient
 
@@ -70,6 +72,30 @@ class SBServiceClient(object):
         return None
 
 
+
+def mySave(image_data):
+    if image_data:
+        image_dir = os.path.expanduser("~/Downloads/Screenshots")
+        if not os.path.exists(image_dir):
+            os.makedirs(image_dir)
+        filename = strftime('image-%Y-%m-%d-%H-%M-%S.png', gmtime())
+        outPath = os.path.join(image_dir, filename)
+
+        print('Saving image at %s' % outPath)
+        with open(outPath, 'wb') as o:
+            o.write(image_data)
+
+
 if __name__ == "__main__":
     s = SBServiceClient()
-    print(s.get_icon_pngdata("com.apple.weather"))
+
+    # icon_data = s.get_icon_pngdata("com.apple.weather")
+    # wallpaper_data = s.get_wallpaper_pngdata()
+    # mySave(icon_data)
+    # mySave(wallpaper_data)
+
+    icon_state = s.get_icon_state()
+    pprint(icon_state)
+
+    interface_orientation = s.get_interface_orientation()
+    pprint(interface_orientation)

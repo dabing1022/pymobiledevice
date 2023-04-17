@@ -34,13 +34,21 @@ def on_start_lockdown_service(data):
     print(f"[client] start lockdown service: {data}")
     service_name = data['Service']
     if service_name in service_map:
-        sio.emit('start_lockdown_service_success', {'port': service_map[service_name].port, 'name': data['Service']})
         return
 
     if lockdownClient:
         plist_service = lockdownClient.myStartService(data)
         service_map[service_name] = plist_service
-        sio.emit('start_lockdown_service_success', {'port': plist_service.port, 'name': data['Service']})
+
+        if service_name == 'com.apple.mobile.screenshotr':
+            print("[client] start com.apple.mobile.screenshotr")
+            DLMessageVersionExchange = plist_service.recvPlist()
+            version_major = DLMessageVersionExchange[1]
+            plist_service.sendPlist(["DLMessageVersionExchange", "DLVersionsOk", version_major])
+            DLMessageDeviceReady = plist_service.recvPlist()
+            sio.emit('start_lockdown_service_success', {'port': plist_service.port, 'name': data['Service']})
+        else:
+            sio.emit('start_lockdown_service_success', {'port': plist_service.port, 'name': data['Service']})
     else:
         sio.emit('start_lockdown_service_failure', {})
 
@@ -56,7 +64,7 @@ def on_service_command_request(data):
             print(f"[client] send command: {data['command']}")
             plist_service.sendPlist(data['command'])
             response = plist_service.recvPlist()
-            print(f"[client] response: {response}")
+            # print(f"[client] response: {response}")
             sio.emit('service_command_response', {'response': response, 'name': service_name})
 
 

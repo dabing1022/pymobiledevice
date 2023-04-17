@@ -34,10 +34,6 @@ from optparse import OptionParser
 
 class HouseArrestClient(AFCClient):
 
-    self.lockdown = lockdown if lockdown else LockdownClient(udid=udid)
-    self.serviceName = serviceName
-    self.service = service if service else self.lockdown.startService(self.serviceName)
-
     def __init__(self, udid=None,logger=None):
         self.logger = logger or logging.getLogger(__name__)
         lockdownClient = LockdownClient(udid)
