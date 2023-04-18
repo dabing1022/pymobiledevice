@@ -387,6 +387,7 @@ class LockdownClient(object):
 
         self.c.sendPlist(payload)
         startService = self.c.recvPlist()
+        print("[Andy] startService: %s" % startService)
         ssl_enabled = startService.get("EnableServiceSSL", False)
         if not startService or startService.get("Error"):
             raise StartServiceError(startService.get("Error"))

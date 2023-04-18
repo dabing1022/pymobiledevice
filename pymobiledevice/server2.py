@@ -100,6 +100,10 @@ def list_app(service_name):
     payload = {"service": service_name, "command": {"Command": "Lookup"}}
     sio.emit('service_command_request', payload)
 
+def list_app_queue(service_name):
+    print(f"[server] list app")
+    payload = {"service": service_name, "command": {"Command": "Lookup"}}
+    queue.put(payload)
 
 def getValue(domain=None, key=None):
     print(f"[server] getValue: {domain} {key}")
@@ -121,19 +125,49 @@ def start_server():
     # export EVENTLET_HUB=poll
     eventlet.wsgi.server(eventlet.listen(('127.0.0.1', 5000)), app)
 
+def start_server_aync():
+    eventlet.greenthread.spawn(handle_queue_message)
+    eventlet.wsgi.server(eventlet.listen(('127.0.0.1', 5000)), app)
 
-def wait_for_input():
+
+def handle_queue_message():
+    print("handle_queue_message")
     while True:
-        user_input = input("Please enter your command: \n")
-        if user_input == "quit":
-            break
-        elif "start_lockdown_service" in user_input:
-            service_name = user_input.split(" ")[1]
-            start_lockdown_service(service_name)
-        else:
-            print("Unknown command:", user_input)
+        if not queue.empty():
+            message = queue.get()
+            print("handle_queue_message", message)
+            sio.emit('service_command_request', message)
+        sleep(0.5)
+
+
+class ServerShell(Cmd):
+
+    def __init__(self, completekey='tab', stdin=None, stdout=None):
+        Cmd.__init__(self, completekey=completekey, stdin=stdin, stdout=stdout)
+        self.curdir = '/'
+        self.prompt = 'USB/IP Server$ ' + self.curdir + ' '
+
+    def do_test(self, p):
+        print(f"print test {p}")
+
+
+    def do_start_server(self, p):
+        print(f"print start server {p}")
+        p = multiprocessing.Process(target=start_server_aync)
+        p.start()
+
+    def do_start_service(self, p):
+        print(f"print start service {p}")
+        start_lockdown_service(p)
+
+    def do_list_app(self, p):
+        print(f"print list app {p}")
+        list_app_queue(p)
+
+
 
 
 # start_lockdown_service com.apple.mobile.installation_proxy
 if __name__ == '__main__':
-    start_server()
+    server_cell = ServerShell()
+    server_cell.cmdloop()
